@@ -17,8 +17,10 @@ Introduction
 The oauth2app module helps Django site operators provide an OAuth 2.0 interface. The module
 is registered as an application.
 
-In settings.py, add 'oauth2app' to INSTALLED_APPS. ::
+How to set up the OAuth2 provider
+---------------------------------
 
+In settings.py, add 'oauth2app' to INSTALLED_APPS. ::
 
     INSTALLED_APPS = (
         ...,
@@ -29,13 +31,18 @@ Sync the DB models. ::
 
     python manage.py syncdb
 
-In urls.py, add /oauth2/authorize and /oauth2/token views to a new or existing app. ::
+In urls.py, add the oauth2app URL patterns::
 
-    urlpatterns += patterns('',
-        (r'^oauth2/missing_redirect_uri/?$',   'mysite.oauth2.views.missing_redirect_uri'),
-        (r'^oauth2/authorize/?$',                'mysite.oauth2.views.authorize'),
-        (r'^oauth2/token/?$',                    'oauth2app.token.handler'),
+    urlpatterns = patterns('',
+        ...
+        url(r'^oauth2/', include('oauth2app.urls')),
+        ...
     )
+
+How to set up a sample OAuth2 consumer
+--------------------------------------
+
+TODO: move this all into django-oauth2consumer.
     
 Create client models. ::
 
@@ -44,57 +51,6 @@ Create client models. ::
     Client.objects.create(
         name="My Sample OAuth 2.0 Client",
         user=user)
-
-Create authorize and missing_redirect_uri handlers. ::
-
-    from django.shortcuts import render_to_response
-    from django.http import HttpResponseRedirect
-    from django.template import RequestContext
-    from django.contrib.auth.decorators import login_required
-    from oauth2app.authorize import Authorizer, MissingRedirectURI, AuthorizationException
-    from django import forms
-
-    class AuthorizeForm(forms.Form):
-        pass
-
-    @login_required
-    def missing_redirect_uri(request):
-        return render_to_response(
-            'oauth2/missing_redirect_uri.html', 
-            {}, 
-            RequestContext(request))
-
-    @login_required
-    def authorize(request):
-        authorizer = Authorizer()
-        try:
-            authorizer.validate(request)
-        except MissingRedirectURI, e:
-            return HttpResponseRedirect("/oauth2/missing_redirect_uri")
-        except AuthorizationException, e:
-            # The request is malformed or invalid. Automatically 
-            # redirects to the provided redirect URL.
-            return authorizer.error_redirect()
-        if request.method == 'GET':
-            template = {}
-            # Use any form, make sure it has CSRF protections.
-            template["form"] = AuthorizeForm()
-            # Appends the original OAuth2 parameters.
-            template["form_action"] = '/oauth2/authorize?%s' % authorizer.query_string
-            return render_to_response(
-                'oauth2/authorize.html', 
-                template, 
-                RequestContext(request))
-        elif request.method == 'POST':
-            form = AuthorizeForm(request.POST)
-            if form.is_valid():
-                if request.POST.get("connect") == "Yes":
-                    # User agrees. Redirect to redirect_uri with success params.
-                    return authorizer.grant_redirect()
-                else:
-                    # User refuses. Redirect to redirect_uri with error params.
-                    return authorizer.error_redirect()
-        return HttpResponseRedirect("/")
 
 Authenticate requests. ::
 
