@@ -4,7 +4,6 @@
 """OAuth 2.0 Authorization"""
 
 
-import simplejson as json
 from django.http import absolute_http_url_re, HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from urllib import urlencode
 from .consts import ACCESS_TOKEN_EXPIRATION, REFRESHABLE
@@ -134,7 +133,7 @@ class Authorizer(object):
         *Returns HTTP Response redirect*"""
         try:
             self.validate(request)
-        except AuthorizationException, e:
+        except AuthorizationException:
             # The request is malformed or invalid. Automatically
             # redirects to the provided redirect URL.
             return self.error_redirect()
@@ -161,7 +160,7 @@ class Authorizer(object):
         self.request = request
         try:
             self._validate()
-        except AuthorizationException, e:
+        except AuthorizationException as e:
             self._check_redirect_uri()
             self.error = e
             raise e

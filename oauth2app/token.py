@@ -8,7 +8,7 @@ from base64 import b64encode
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
-from simplejson import dumps
+from json import dumps
 from .exceptions import OAuth2Exception
 from .consts import ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_LENGTH
 from .consts import AUTHENTICATION_METHOD, MAC, BEARER, MAC_KEY_LENGTH
@@ -155,7 +155,7 @@ class TokenGenerator(object):
         self.request = request
         try:
             self.validate()
-        except AccessTokenException, e:
+        except AccessTokenException:
             return self.error_response()
         return self.grant_response()
 
@@ -166,7 +166,7 @@ class TokenGenerator(object):
         *Returns None*"""
         try:
             self._validate()
-        except AccessTokenException, e:
+        except AccessTokenException as e:
             self.error = e
             raise e
         self.valid = True
@@ -344,7 +344,7 @@ class TokenGenerator(object):
             access_token = self._get_client_credentials_token()
         data = {
             'access_token': access_token.token,
-            'expire_in': ACCESS_TOKEN_EXPIRATION}
+            'expires_in': ACCESS_TOKEN_EXPIRATION}
         if self.authentication_method == MAC:
             data["token_type"] = "mac"
             data["mac_key"] = access_token.mac_key
@@ -372,7 +372,7 @@ class TokenGenerator(object):
             refreshable=self.refreshable)
         if self.authentication_method == MAC:
             access_token.mac_key = KeyGenerator(MAC_KEY_LENGTH)()
-        access_ranges = list(AccessRange.objects.filter(key__in=self.scope))
+        access_ranges = AccessRange.objects.filter(key__in=self.scope) if self.scope else []
         access_token.scope = access_ranges
         access_token.save()
         self.code.delete()
@@ -386,7 +386,7 @@ class TokenGenerator(object):
             refreshable=self.refreshable)
         if self.authentication_method == MAC:
             access_token.mac_key = KeyGenerator(MAC_KEY_LENGTH)()
-        access_ranges = list(AccessRange.objects.filter(key__in=self.scope))
+        access_ranges = AccessRange.objects.filter(key__in=self.scope) if self.scope else []
         access_token.scope = access_ranges
         access_token.save()
         return access_token
@@ -395,7 +395,7 @@ class TokenGenerator(object):
         """Generate an access token after refresh authorization."""
         self.access_token.refresh_token = KeyGenerator(REFRESH_TOKEN_LENGTH)()
         self.access_token.expire = TimestampGenerator(ACCESS_TOKEN_EXPIRATION)()
-        access_ranges = list(AccessRange.objects.filter(key__in=self.scope))
+        access_ranges = AccessRange.objects.filter(key__in=self.scope) if self.scope else []
         self.access_token.scope = access_ranges
         self.access_token.save()
         return self.access_token
@@ -408,10 +408,7 @@ class TokenGenerator(object):
             refreshable=self.refreshable)
         if self.authentication_method == MAC:
             access_token.mac_key = KeyGenerator(MAC_KEY_LENGTH)()
-        access_ranges = list(AccessRange.objects.filter(key__in=self.scope))
+        access_ranges = AccessRange.objects.filter(key__in=self.scope) if self.scope else []
         self.access_token.scope = access_ranges
         self.access_token.save()
         return self.access_token
-
-
-
