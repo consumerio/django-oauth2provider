@@ -1,3 +1,7 @@
+.. warning::
+
+    This fork of oauth2app is still a work in progress.  Do not use this.
+
 
 * See http://hiidef.github.com/oauth2app for documentation. 
 * See https://github.com/hiidef/oauth2app for source code.
