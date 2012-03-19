@@ -1,0 +1,3 @@
+Django==1.3.1
+django-uni-form==0.9.0
+git+https://github.com/consumernotebook/oauth2app.git
