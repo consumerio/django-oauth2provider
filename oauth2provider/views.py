@@ -2,8 +2,10 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
-from oauth2app.authorize import Authorizer, MissingRedirectURI, AuthorizationException
+from oauth2provider.authenticate import Authenticator, JSONAuthenticator, AuthenticationException
+from oauth2provider.authorize import Authorizer, MissingRedirectURI, AuthorizationException
 from django import forms
+from django.http import HttpResponse
 
 class AuthorizeForm(forms.Form):
     pass
@@ -46,3 +48,26 @@ def authorize(request):
                 # User refuses. Redirect to redirect_uri with error params.
                 return authorizer.error_redirect()
     return HttpResponseRedirect("/")
+    
+def authenticate(request):
+    authenticator = Authenticator()
+    try:
+        # Validate the request.
+        authenticator.validate(request)
+    except AuthenticationException:
+        # Return an error response.
+        return authenticator.error_response(content="You didn't authenticate.")
+    username = authenticator.user.username
+    return HttpResponse(content="Hi %s, You authenticated!" % username)
+
+def authenticate_json(request):
+    authenticator = JSONAuthenticator()
+    try:
+        # Validate the request.
+        authenticator.validate(request)
+    except AuthenticationException:
+        # Return a JSON encoded error response.
+        return authenticator.error_response()
+    username = authenticator.user.userame
+    # Return a JSON encoded response.
+    return authenticator.response({"username":username})

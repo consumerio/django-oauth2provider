@@ -24,22 +24,22 @@ is registered as an application.
 How to set up the OAuth2 provider
 ---------------------------------
 
-In settings.py, add 'oauth2app' to INSTALLED_APPS. ::
+In settings.py, add 'oauth2provider' to INSTALLED_APPS. ::
 
     INSTALLED_APPS = (
         ...,
-        'oauth2app' 
+        'oauth2provider' 
     )
 
 Sync the DB models. ::
 
     python manage.py syncdb
 
-In urls.py, add the oauth2app URL patterns::
+In urls.py, add the oauth2provider URL patterns::
 
     urlpatterns = patterns('',
         ...
-        url(r'^oauth2/', include('oauth2app.urls')),
+        url(r'^oauth2/', include('oauth2provider.urls')),
         ...
     )
 
@@ -55,38 +55,6 @@ Create client models. ::
     Client.objects.create(
         name="My Sample OAuth 2.0 Client",
         user=user)
-
-Authenticate requests. ::
-
-    from oauth2app.authenticate import Authenticator, AuthenticationException
-    from django.http import HttpResponse
-    
-    def test(request):
-        authenticator = Authenticator()
-        try:
-            # Validate the request.
-            authenticator.validate(request)
-        except AuthenticationException:
-            # Return an error response.
-            return authenticator.error_response(content="You didn't authenticate.")
-        username = authenticator.user.username
-        return HttpResponse(content="Hi %s, You authenticated!" % username)
-
-If you want to authenticate JSON requests try the JSONAuthenticator. ::
-
-    from oauth2app.authenticate import JSONAuthenticator, AuthenticationException
-
-    def test(request):
-        authenticator = JSONAuthenticator()
-        try:
-            # Validate the request.
-            authenticator.validate(request)
-        except AuthenticationException:
-            # Return a JSON encoded error response.
-            return authenticator.error_response()
-        username = authenticator.user.userame
-        # Return a JSON encoded response.
-        return authenticator.response({"username":username})
 
 Examples
 --------
