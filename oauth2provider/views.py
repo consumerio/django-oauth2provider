@@ -6,6 +6,7 @@ from oauth2provider.authenticate import Authenticator, JSONAuthenticator, Authen
 from oauth2provider.authorize import Authorizer, MissingRedirectURI, AuthorizationException
 from django import forms
 from django.http import HttpResponse
+from .forms import CreateClientForm, RemoveClientForm
 
 class AuthorizeForm(forms.Form):
     pass
@@ -71,3 +72,33 @@ def authenticate_json(request):
     username = authenticator.user.userame
     # Return a JSON encoded response.
     return authenticator.response({"username":username})
+
+@login_required
+def create_client(request):
+    form = CreateClientForm(request.POST or None)
+    if form.is_valid():
+        Client.objects.create(
+            name=form.cleaned_data["name"],
+            user=request.user
+        )     
+
+    template = {
+        "form":form, 
+        "clients":Client.objects.filter(user=request.user)}
+    return render_to_response(
+        'create_client.html', 
+        template, 
+        RequestContext(request))  
+
+@login_required
+def remove_client(request):
+    remove_form = RemoveClientForm(request.POST or None)
+    if remove_form.is_valid():
+        Client.objects.filter(id=remove_form.cleaned_data["client_id"]).delete()
+    template = {
+        "form":remove_form, 
+        "clients":Client.objects.filter(user=request.user)}
+    return render_to_response(
+        'remove_client.html', 
+        template, 
+        RequestContext(request))  

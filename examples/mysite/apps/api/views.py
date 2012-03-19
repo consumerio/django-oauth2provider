@@ -1,8 +1,8 @@
 #-*- coding: utf-8 -*-
 
 
-from oauth2app.authenticate import JSONAuthenticator, AuthenticationException
-from oauth2app.models import AccessRange
+from oauth2provider.authenticate import JSONAuthenticator, AuthenticationException
+from oauth2provider.models import AccessRange
 
 def date_joined(request):
     scope = AccessRange.objects.get(key="date_joined")

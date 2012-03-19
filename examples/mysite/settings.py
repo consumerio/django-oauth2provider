@@ -87,10 +87,9 @@ INSTALLED_APPS = (
     'mysite.apps.base',
     'mysite.apps.client',
     'mysite.apps.account',
-    'mysite.apps.oauth2',
     'mysite.apps.api',
     'uni_form',
-    'oauth2app',
+    'oauth2provider',
     'django_nose',
 )
 

@@ -1,11 +1,8 @@
 .. warning::
 
-    This fork of oauth2app is still a work in progress.  Do not use this.
+    The code in here is still a work in progress.  Do not use this.
 
-
-* See http://hiidef.github.com/oauth2app for documentation. 
-* See https://github.com/hiidef/oauth2app for source code.
-* Based on http://code.google.com/p/django-oauth2
+* Based on http://code.google.com/p/django-oauth2 and https://github.com/hiidef/oauth2app
 * Support for OAuth 2.0 draft 16, http://tools.ietf.org/html/draft-ietf-oauth-v2-16
 
 Installation

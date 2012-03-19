@@ -6,26 +6,6 @@ from django.contrib.auth.forms import UserCreationForm
 from uni_form.helpers import FormHelper, Submit, Reset
 from oauth2app.models import AccessRange
 
-class CreateClientForm(forms.Form):
-    
-    name = forms.CharField(label="Name", max_length=30)
-    
-    @property
-    def helper(self):
-        form = CreateClientForm()
-        helper = FormHelper()
-        reset = Reset('','Reset')
-        helper.add_input(reset)
-        submit = Submit('','Create Client')
-        helper.add_input(submit)
-        helper.form_action = '/account/clients'
-        helper.form_method = 'POST'
-        return helper
-
-
-class ClientRemoveForm(forms.Form):
-
-    client_id = forms.IntegerField()
 
 
 class SignupForm(UserCreationForm):
